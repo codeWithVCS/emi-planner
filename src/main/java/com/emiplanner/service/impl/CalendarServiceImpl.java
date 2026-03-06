@@ -24,39 +24,16 @@ public class CalendarServiceImpl implements CalendarService {
     public YearCalendarResponse getYearCalendar(UUID userId, int year) {
 
         List<Loan> loans = loanRepository.findByUserId(userId);
-
         List<MonthSummary> months = new ArrayList<>();
 
         for (int month = 1; month <= 12; month++) {
-
-            YearMonth ym = YearMonth.of(year, month);
-
-            LocalDate monthStart = ym.atDay(1);
-            LocalDate monthEnd = ym.atEndOfMonth();
-
-            BigDecimal totalEmi = BigDecimal.ZERO;
-
-            for (Loan loan : loans) {
-
-                LocalDate loanStart = loan.getStartDate();
-                LocalDate loanEnd = loan.getClosedDate() != null
-                        ? loan.getClosedDate()
-                        : loan.getEndDate();
-
-                boolean contributes =
-                        !loanStart.isAfter(monthEnd) &&
-                                !loanEnd.isBefore(monthStart);
-
-                if (contributes) {
-                    totalEmi = totalEmi.add(loan.getEmiAmount());
-                }
-            }
+            MonthCalculation monthCalculation = calculateMonth(loans, year, month);
 
             months.add(
                     new MonthSummary(
                             month,
                             year,
-                            totalEmi
+                            monthCalculation.totalEmi()
                     )
             );
         }
@@ -68,45 +45,43 @@ public class CalendarServiceImpl implements CalendarService {
     public MonthBreakdownResponse getMonthBreakdown(UUID userId, int year, int month) {
 
         List<Loan> loans = loanRepository.findByUserId(userId);
+        MonthCalculation monthCalculation = calculateMonth(loans, year, month);
 
-        YearMonth ym = YearMonth.of(year, month);
+        return new MonthBreakdownResponse(
+                month,
+                year,
+                monthCalculation.totalEmi(),
+                monthCalculation.contributions()
+        );
+    }
 
-        LocalDate monthStart = ym.atDay(1);
-        LocalDate monthEnd = ym.atEndOfMonth();
+    private MonthCalculation calculateMonth(List<Loan> loans, int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate monthStart = yearMonth.atDay(1);
+        LocalDate monthEnd = yearMonth.atEndOfMonth();
 
         BigDecimal totalEmi = BigDecimal.ZERO;
         List<LoanContribution> contributions = new ArrayList<>();
 
         for (Loan loan : loans) {
-
-            LocalDate loanStart = loan.getStartDate();
-            LocalDate loanEnd = loan.getClosedDate() != null
-                    ? loan.getClosedDate()
-                    : loan.getEndDate();
-
-            boolean contributes =
-                    !loanStart.isAfter(monthEnd) &&
-                            !loanEnd.isBefore(monthStart);
-
-            if (contributes) {
-
-                totalEmi = totalEmi.add(loan.getEmiAmount());
-
-                contributions.add(
-                        new LoanContribution(
-                                loan.getId(),
-                                loan.getLoanName(),
-                                loan.getEmiAmount()
-                        )
-                );
+            if (!isLoanActiveInRange(loan, monthStart, monthEnd)) {
+                continue;
             }
+
+            totalEmi = totalEmi.add(loan.getEmiAmount());
+            contributions.add(new LoanContribution(loan.getId(), loan.getLoanName(), loan.getEmiAmount()));
         }
 
-        return new MonthBreakdownResponse(
-                month,
-                year,
-                totalEmi,
-                contributions
-        );
+        return new MonthCalculation(totalEmi, contributions);
+    }
+
+    private boolean isLoanActiveInRange(Loan loan, LocalDate rangeStart, LocalDate rangeEnd) {
+        LocalDate loanStart = loan.getStartDate();
+        LocalDate loanEnd = loan.getClosedDate() != null ? loan.getClosedDate() : loan.getEndDate();
+
+        return !loanStart.isAfter(rangeEnd) && !loanEnd.isBefore(rangeStart);
+    }
+
+    private record MonthCalculation(BigDecimal totalEmi, List<LoanContribution> contributions) {
     }
 }
