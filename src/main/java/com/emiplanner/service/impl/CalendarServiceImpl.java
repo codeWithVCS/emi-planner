@@ -5,6 +5,7 @@ import com.emiplanner.entity.Loan;
 import com.emiplanner.repository.LoanRepository;
 import com.emiplanner.service.CalendarService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,12 +17,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CalendarServiceImpl implements CalendarService {
 
     private final LoanRepository loanRepository;
 
     @Override
     public YearCalendarResponse getYearCalendar(UUID userId, int year) {
+        log.info("Generate year calendar request received. userId={}, year={}", userId, year);
 
         List<Loan> loans = loanRepository.findByUserId(userId);
         List<MonthSummary> months = new ArrayList<>();
@@ -38,15 +41,21 @@ public class CalendarServiceImpl implements CalendarService {
             );
         }
 
+        log.info("Year calendar generated successfully. userId={}, year={}, monthsGenerated={}", userId, year, months.size());
         return new YearCalendarResponse(year, months);
     }
 
     @Override
     public MonthBreakdownResponse getMonthBreakdown(UUID userId, int year, int month) {
+        log.info("Generate month breakdown request received. userId={}, year={}, month={}", userId, year, month);
 
         List<Loan> loans = loanRepository.findByUserId(userId);
         MonthCalculation monthCalculation = calculateMonth(loans, year, month);
 
+        log.info(
+                "Month breakdown generated successfully. userId={}, year={}, month={}, totalEmi={}, contributionCount={}",
+                userId, year, month, monthCalculation.totalEmi(), monthCalculation.contributions().size()
+        );
         return new MonthBreakdownResponse(
                 month,
                 year,

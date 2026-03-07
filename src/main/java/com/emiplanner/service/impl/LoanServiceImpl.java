@@ -15,6 +15,7 @@ import com.emiplanner.repository.LoanRepository;
 import com.emiplanner.repository.UserRepository;
 import com.emiplanner.service.LoanService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LoanServiceImpl implements LoanService {
 
     private final LoanRepository loanRepository;
@@ -33,9 +35,16 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public LoanResponse createLoan(UUID userId, LoanCreateRequest request) {
+        log.info(
+                "Create loan request received. userId={}, loanName={}, providerName={}, startDate={}, tenureMonths={}, emiAmount={}",
+                userId, request.getLoanName(), request.getProviderName(), request.getStartDate(), request.getTenureMonths(), request.getEmiAmount()
+        );
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> {
+                    log.warn("Create loan failed: user not found. userId={}", userId);
+                    return new ResourceNotFoundException("User not found");
+                });
 
         if(loanRepository.existsByUserIdAndLoanNameAndProviderNameAndStartDate(
                 userId,
@@ -43,6 +52,10 @@ public class LoanServiceImpl implements LoanService {
                 request.getProviderName(),
                 request.getStartDate()
         )){
+            log.warn(
+                    "Create loan failed: duplicate loan. userId={}, loanName={}, providerName={}, startDate={}",
+                    userId, request.getLoanName(), request.getProviderName(), request.getStartDate()
+            );
             throw new DuplicateResourceException("Loan with the provided details already exists");
         }
 
@@ -55,17 +68,23 @@ public class LoanServiceImpl implements LoanService {
         loan.setTenureMonths(request.getTenureMonths());
 
         Loan savedLoan = loanRepository.save(loan);
+        log.info("Loan created successfully. loanId={}, userId={}", savedLoan.getId(), userId);
 
         return mapToLoanResponse(savedLoan);
     }
 
     @Override
     public LoanResponse updateLoan(UUID loanId, UUID userId, LoanUpdateRequest request) {
+        log.info("Update loan request received. loanId={}, userId={}", loanId, userId);
 
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
+                .orElseThrow(() -> {
+                    log.warn("Update loan failed: loan not found. loanId={}", loanId);
+                    return new ResourceNotFoundException("Loan not found");
+                });
 
         if (!loan.getUser().getId().equals(userId)) {
+            log.warn("Update loan failed: access denied. loanId={}, requesterUserId={}, ownerUserId={}", loanId, userId, loan.getUser().getId());
             throw new AuthorizationException("Access Denied");
         }
 
@@ -80,30 +99,42 @@ public class LoanServiceImpl implements LoanService {
         loan.setEndDate(endDate);
 
         Loan savedLoan = loanRepository.save(loan);
+        log.info("Loan updated successfully. loanId={}, userId={}, endDate={}", loanId, userId, savedLoan.getEndDate());
 
         return mapToLoanResponse(savedLoan);
     }
 
     @Override
     public void deleteLoan(UUID loanId, UUID userId) {
+        log.info("Delete loan request received. loanId={}, userId={}", loanId, userId);
 
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
+                .orElseThrow(() -> {
+                    log.warn("Delete loan failed: loan not found. loanId={}", loanId);
+                    return new ResourceNotFoundException("Loan not found");
+                });
 
         if (!loan.getUser().getId().equals(userId)) {
+            log.warn("Delete loan failed: access denied. loanId={}, requesterUserId={}, ownerUserId={}", loanId, userId, loan.getUser().getId());
             throw new AuthorizationException("Access Denied");
         }
 
         loanRepository.delete(loan);
+        log.info("Loan deleted successfully. loanId={}, userId={}", loanId, userId);
     }
 
     @Override
     public LoanResponse closeLoan(UUID loanId, UUID userId, LoanCloseRequest request) {
+        log.info("Close loan request received. loanId={}, userId={}, closedDate={}", loanId, userId, request.getClosedDate());
 
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
+                .orElseThrow(() -> {
+                    log.warn("Close loan failed: loan not found. loanId={}", loanId);
+                    return new ResourceNotFoundException("Loan not found");
+                });
 
         if (!loan.getUser().getId().equals(userId)) {
+            log.warn("Close loan failed: access denied. loanId={}, requesterUserId={}, ownerUserId={}", loanId, userId, loan.getUser().getId());
             throw new AuthorizationException("Access Denied");
         }
 
@@ -112,6 +143,10 @@ public class LoanServiceImpl implements LoanService {
         LocalDate closedDate = request.getClosedDate();
 
         if(closedDate.isBefore(startDate) || closedDate.isAfter(endDate)){
+            log.warn(
+                    "Close loan failed: invalid closed date. loanId={}, startDate={}, endDate={}, closedDate={}",
+                    loanId, startDate, endDate, closedDate
+            );
             throw new BusinessRuleException("Closed date must be within the loan period");
         }
 
@@ -119,28 +154,40 @@ public class LoanServiceImpl implements LoanService {
         loan.setClosedDate(request.getClosedDate());
 
         Loan savedLoan = loanRepository.save(loan);
+        log.info("Loan closed successfully. loanId={}, userId={}, closedDate={}", loanId, userId, savedLoan.getClosedDate());
 
         return mapToLoanResponse(savedLoan);
     }
 
     @Override
     public LoanResponse getLoanById(UUID loanId, UUID userId) {
+        log.info("Get loan by id request received. loanId={}, userId={}", loanId, userId);
 
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan not found"));
+                .orElseThrow(() -> {
+                    log.warn("Get loan by id failed: loan not found. loanId={}", loanId);
+                    return new ResourceNotFoundException("Loan not found");
+                });
 
         if (!loan.getUser().getId().equals(userId)) {
+            log.warn("Get loan by id failed: access denied. loanId={}, requesterUserId={}, ownerUserId={}", loanId, userId, loan.getUser().getId());
             throw new AuthorizationException("Access Denied");
         }
+        log.info("Loan fetched successfully. loanId={}, userId={}", loanId, userId);
 
         return mapToLoanResponse(loan);
     }
 
     @Override
     public Page<LoanResponse> getUserLoans(UUID userId, int page, int size){
+        log.info("Get user loans request received. userId={}, page={}, size={}", userId, page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return loanRepository.findByUserId(userId, pageable)
-                .map(this::mapToLoanResponse);
+        Page<Loan> loansPage = loanRepository.findByUserId(userId, pageable);
+        log.info(
+                "User loans fetched successfully. userId={}, page={}, size={}, returnedElements={}, totalElements={}, totalPages={}",
+                userId, page, size, loansPage.getNumberOfElements(), loansPage.getTotalElements(), loansPage.getTotalPages()
+        );
+        return loansPage.map(this::mapToLoanResponse);
     }
 
     private LoanResponse mapToLoanResponse(Loan loan){
