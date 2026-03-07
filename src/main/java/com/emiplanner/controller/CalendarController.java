@@ -3,6 +3,8 @@ package com.emiplanner.controller;
 import com.emiplanner.dto.calendar.MonthBreakdownResponse;
 import com.emiplanner.dto.calendar.YearCalendarResponse;
 import com.emiplanner.service.CalendarService;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +32,7 @@ public class CalendarController {
     }
 
     @GetMapping("/{year}/{month}")
-    public ResponseEntity<MonthBreakdownResponse> getMonthBreakdown(@PathVariable int year, @PathVariable int month){
+    public ResponseEntity<MonthBreakdownResponse> getMonthBreakdown(@PathVariable int year, @Min (1) @Max (12) @PathVariable int month){
         UUID userId = getCurrentUserId();
         MonthBreakdownResponse response = calendarService.getMonthBreakdown(userId, year, month);
         return ResponseEntity.status(HttpStatus.OK).body(response);
