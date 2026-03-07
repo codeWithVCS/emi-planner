@@ -7,7 +7,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users",
+    indexes = {
+            @Index(name = "idx_users_phone", columnList = "phone_number")
+    }
+)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

@@ -11,11 +11,12 @@ import java.util.UUID;
 
 @Entity
 @Table(
-    name = "loans",
-    uniqueConstraints = @UniqueConstraint(
-            name = "uk_user_loan",
-            columnNames = {"user_id", "loan_name", "provider_name", "start_date"}
-    )
+        name = "loans",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_user_loan",
+                columnNames = {"user_id", "loan_name", "provider_name", "start_date"}
+        ),
+        indexes = @Index(name = "idx_loans_user", columnList = "user_id")
 )
 @NoArgsConstructor
 @AllArgsConstructor
