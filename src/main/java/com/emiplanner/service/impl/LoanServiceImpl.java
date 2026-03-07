@@ -15,11 +15,13 @@ import com.emiplanner.repository.LoanRepository;
 import com.emiplanner.repository.UserRepository;
 import com.emiplanner.service.LoanService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -135,13 +137,10 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public List<LoanResponse> getUserLoans(UUID userId){
-        List<Loan> loans = loanRepository.findByUserId(userId);
-        List<LoanResponse> responses = new ArrayList<>();
-        for(Loan loan : loans){
-            responses.add(mapToLoanResponse(loan));
-        }
-        return responses;
+    public Page<LoanResponse> getUserLoans(UUID userId, int page, int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return loanRepository.findByUserId(userId, pageable)
+                .map(this::mapToLoanResponse);
     }
 
     private LoanResponse mapToLoanResponse(Loan loan){

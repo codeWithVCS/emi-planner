@@ -7,13 +7,13 @@ import com.emiplanner.dto.loan.LoanUpdateRequest;
 import com.emiplanner.service.LoanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,9 +31,12 @@ public class LoanController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LoanResponse>> getAllLoans(){
+    public ResponseEntity<Page<LoanResponse>> getAllLoans(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
         UUID userId = getCurrentUserId();
-        List<LoanResponse> responses = loanService.getUserLoans(userId);
+        Page<LoanResponse> responses = loanService.getUserLoans(userId, page, size);
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 

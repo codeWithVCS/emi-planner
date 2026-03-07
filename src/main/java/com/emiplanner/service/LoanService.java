@@ -4,9 +4,8 @@ import com.emiplanner.dto.loan.LoanCloseRequest;
 import com.emiplanner.dto.loan.LoanCreateRequest;
 import com.emiplanner.dto.loan.LoanResponse;
 import com.emiplanner.dto.loan.LoanUpdateRequest;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface LoanService {
@@ -21,6 +20,6 @@ public interface LoanService {
 
     LoanResponse getLoanById(UUID loanId, UUID userId);
 
-    List<LoanResponse> getUserLoans(UUID userId);
+    Page<LoanResponse> getUserLoans(UUID userId, int page, int size);
 
 }
