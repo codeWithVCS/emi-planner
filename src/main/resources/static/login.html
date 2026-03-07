@@ -1,0 +1,86 @@
+﻿﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Loan Atlas</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="auth-page login-page">
+  <main class="auth-shell">
+    <section class="auth-brand-panel">
+      <div class="auth-brand-inner">
+        <div class="brand-top">
+          <h1>Loan Atlas</h1>
+          <p class="tagline">Your personal EMI timeline.</p>
+          <p class="brand-description">
+            Loan Atlas helps you visualize and forecast your loan EMIs across months and years in a simple timeline view.
+            Instead of juggling multiple banking apps, you get one clean calendar showing exactly how your EMIs stack up.
+          </p>
+          <div class="why-loan-atlas">
+            <h3>Why Loan Atlas</h3>
+            <ul class="benefits-list">
+              <li>Visualize your EMIs across months and years</li>
+              <li>See exactly how your loans overlap</li>
+              <li>Get a clean calendar view of your commitments</li>
+              <li>Plan financial decisions with clarity</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="calendar-preview">
+          <div class="calendar-preview-grid">
+            <div class="mini-month-card"><div class="month-name">Jan</div><div class="emi-total">₹12,500</div></div>
+            <div class="mini-month-card"><div class="month-name">Feb</div><div class="emi-total">₹12,500</div></div>
+            <div class="mini-month-card"><div class="month-name">Mar</div><div class="emi-total">₹20,500</div></div>
+            <div class="mini-month-card"><div class="month-name">Apr</div><div class="emi-total">₹20,500</div></div>
+            <div class="mini-month-card"><div class="month-name">May</div><div class="emi-total">₹18,500</div></div>
+            <div class="mini-month-card"><div class="month-name">Jun</div><div class="emi-total">₹18,500</div></div>
+            <div class="mini-month-card"><div class="month-name">Jul</div><div class="emi-total">₹15,000</div></div>
+            <div class="mini-month-card"><div class="month-name">Aug</div><div class="emi-total">₹15,000</div></div>
+            <div class="mini-month-card"><div class="month-name">Sep</div><div class="emi-total">₹14,500</div></div>
+            <div class="mini-month-card"><div class="month-name">Oct</div><div class="emi-total">₹14,500</div></div>
+            <div class="mini-month-card"><div class="month-name">Nov</div><div class="emi-total">₹10,000</div></div>
+            <div class="mini-month-card"><div class="month-name">Dec</div><div class="emi-total">₹10,000</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-form-panel">
+      <div class="auth-container">
+        <section class="card auth-card">
+          <h2>Welcome back</h2>
+          <p class="muted">Login to manage your EMIs.</p>
+
+          <div id="alertContainer" class="alert-stack"></div>
+
+          <form id="loginForm" novalidate>
+            <label class="field-label" for="phoneNumber">Phone Number</label>
+            <input id="phoneNumber" name="phoneNumber" type="tel" required placeholder="Enter phone number" />
+
+            <label class="field-label" for="password">Password</label>
+            <div class="password-field">
+              <input id="password" name="password" type="password" required placeholder="Enter password" />
+              <button type="button" class="toggle-password-btn" data-toggle-password data-target="password">Show</button>
+            </div>
+
+            <button class="btn btn-primary btn-block" type="submit" id="loginBtn">Login</button>
+          </form>
+
+          <p class="auth-link-row">New here? <a href="register.html">Register</a></p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="global-footer auth-footer">
+    Disclaimer: EMI forecasts shown in this application are generated purely based on the loan information provided by the user. This application does not calculate amortization schedules or represent official lender records.
+  </footer>
+
+  <script type="module">
+    import { handleLoginPage } from './js/auth.js';
+    handleLoginPage();
+  </script>
+</body>
+</html>

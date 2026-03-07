@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loan Details | Loan Atlas</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="details-page">
+  <div id="alertContainer" class="alert-stack floating"></div>
+
+  <main class="details-shell">
+    <header class="topbar card">
+      <button type="button" id="backToLoansBtn" class="btn btn-light">Back</button>
+      <div>
+        <h1>Loan Details</h1>
+        <p class="muted">View and manage this loan record.</p>
+      </div>
+    </header>
+
+    <section class="card details-card">
+      <div class="details-grid">
+        <div class="details-item"><p class="key">Loan Name</p><p class="value" id="detailLoanName">-</p></div>
+        <div class="details-item"><p class="key">Provider Name</p><p class="value" id="detailProviderName">-</p></div>
+        <div class="details-item"><p class="key">EMI Amount</p><p class="value" id="detailEmiAmount">-</p></div>
+        <div class="details-item"><p class="key">Start Date</p><p class="value" id="detailStartDate">-</p></div>
+        <div class="details-item"><p class="key">Tenure Months</p><p class="value" id="detailTenureMonths">-</p></div>
+        <div class="details-item"><p class="key">End Date</p><p class="value" id="detailEndDate">-</p></div>
+        <div class="details-item"><p class="key">Closed Date</p><p class="value" id="detailClosedDate">-</p></div>
+        <div class="details-item"><p class="key">Status</p><p class="value" id="detailStatus">-</p></div>
+        <div class="details-item"><p class="key">Created At</p><p class="value" id="detailCreatedAt">-</p></div>
+        <div class="details-item"><p class="key">Updated At</p><p class="value" id="detailUpdatedAt">-</p></div>
+      </div>
+
+      <div class="details-actions">
+        <button id="detailEditBtn" class="btn btn-primary" type="button">Edit Loan</button>
+        <button id="detailCloseBtn" class="btn btn-light" type="button">Close Loan</button>
+        <button id="detailDeleteBtn" class="btn btn-danger" type="button">Delete Loan</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="global-footer">
+    Disclaimer: EMI forecasts shown in this application are generated purely based on the loan information provided by the user. This application does not calculate amortization schedules or represent official lender records.
+  </footer>
+
+  <div class="modal hidden" id="loanModal" role="dialog" aria-modal="true" aria-labelledby="loanModalTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="loanModalTitle">Edit Loan</h3>
+        <button type="button" class="icon-btn" data-close-modal="loanModal">X</button>
+      </div>
+      <form id="loanForm" novalidate>
+        <input type="hidden" id="loanId" />
+
+        <label class="field-label" for="loanName">Loan Name</label>
+        <input id="loanName" name="loanName" type="text" required />
+
+        <label class="field-label" for="providerName">Provider Name</label>
+        <input id="providerName" name="providerName" type="text" required />
+
+        <div class="loan-inline-grid">
+          <div>
+            <label class="field-label" for="emiAmount">EMI Amount</label>
+            <input id="emiAmount" name="emiAmount" type="number" min="1" step="0.01" required />
+          </div>
+          <div>
+            <label class="field-label" for="startDate">Start Date</label>
+            <input id="startDate" name="startDate" type="date" required />
+          </div>
+          <div>
+            <label class="field-label" for="tenureMonths">Tenure (months)</label>
+            <input id="tenureMonths" name="tenureMonths" type="number" min="1" required />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-light" data-close-modal="loanModal">Cancel</button>
+          <button id="loanSubmitBtn" type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="closeLoanModal" role="dialog" aria-modal="true" aria-labelledby="closeLoanTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="closeLoanTitle">Close Loan</h3>
+        <button type="button" class="icon-btn" data-close-modal="closeLoanModal">X</button>
+      </div>
+      <form id="closeLoanForm" novalidate>
+        <input type="hidden" id="closeLoanId" />
+
+        <label class="field-label" for="closedDate">Closed Date</label>
+        <input id="closedDate" name="closedDate" type="date" required />
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-light" data-close-modal="closeLoanModal">Cancel</button>
+          <button id="closeLoanSubmitBtn" type="submit" class="btn btn-primary">Close Loan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { requireAuth } from './js/auth.js';
+    import { initUi } from './js/ui.js';
+    import { initLoanDetailsPage } from './js/loans.js';
+
+    requireAuth();
+    initUi();
+    initLoanDetailsPage();
+  </script>
+</body>
+</html>
