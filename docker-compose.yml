@@ -1,0 +1,47 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: emi-planner-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: emi_planner
+      MYSQL_USER: emi_user
+      MYSQL_PASSWORD: emi_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - emi-network
+
+  app:
+    build: .
+    container_name: emi-planner-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/emi_planner
+      SPRING_DATASOURCE_USERNAME: emi_user
+      SPRING_DATASOURCE_PASSWORD: emi_password
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+      JWT_SECRET: your-secret-key-change-in-production
+    ports:
+      - "8080:8080"
+    networks:
+      - emi-network
+    restart: unless-stopped
+
+volumes:
+  db_data:
+
+networks:
+  emi-network:
+    driver: bridge
