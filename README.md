@@ -44,19 +44,31 @@ Add your frontend screenshots here before publishing your portfolio.
 
 ### Authentication
 
-![Login Page](docs/screenshots/login.png)
-![Register Page](docs/screenshots/register.png)
+Login Page 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/44a5345b-1f63-48bf-9c5c-615952126dad" />
+
+Register Page
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4a11e5d9-a3eb-4170-9705-a788d4006fee" />
 
 ### Dashboard / Loans
 
-![Loans Dashboard](docs/screenshots/loans-dashboard.png)
-![Add Loan Modal](docs/screenshots/add-loan-modal.png)
-![Loan Details](docs/screenshots/loan-details.png)
+Loans Dashboard
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/356e5ac8-d85b-4e07-ac36-4c14c6364c7b" />
+
+Add Loan Modal
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/81fb3f7d-cd24-4a03-a071-8b50587e585f" />
+
+Loan Details
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/26dd09a5-2e3b-424e-bbbd-34fd12416aaf" />
 
 ### Calendar / Forecasting
 
-![Yearly EMI Calendar](docs/screenshots/yearly-calendar.png)
-![Month Breakdown](docs/screenshots/month-breakdown.png)
+Yearly EMI Calendar
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b1792119-63be-4a8d-8293-d1da3a8f7603" />
+
+Month Breakdown
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7d8da32c-614c-477e-b2b8-ad2ff416c161" />
+
 
 ## In Scope vs Out of Scope
 
