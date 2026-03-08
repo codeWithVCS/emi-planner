@@ -40,7 +40,6 @@ This project intentionally focuses on **forecasting and visibility** from user-p
 
 ## Project Screenshots
 
-Add your frontend screenshots here before publishing your portfolio.
 
 ### Authentication
 
