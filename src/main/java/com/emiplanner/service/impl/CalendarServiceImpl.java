@@ -1,11 +1,13 @@
 package com.emiplanner.service.impl;
 
 import com.emiplanner.dto.calendar.*;
+import com.emiplanner.config.CacheNames;
 import com.emiplanner.entity.Loan;
 import com.emiplanner.repository.LoanRepository;
 import com.emiplanner.service.CalendarService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +25,7 @@ public class CalendarServiceImpl implements CalendarService {
     private final LoanRepository loanRepository;
 
     @Override
+    @Cacheable(cacheNames = CacheNames.CALENDAR_YEAR, key = "#userId.toString() + ':' + #year")
     public YearCalendarResponse getYearCalendar(UUID userId, int year) {
         log.info("Generate year calendar request received. userId={}, year={}", userId, year);
 
@@ -46,6 +49,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
+    @Cacheable(cacheNames = CacheNames.CALENDAR_MONTH, key = "#userId.toString() + ':' + #year + ':' + #month")
     public MonthBreakdownResponse getMonthBreakdown(UUID userId, int year, int month) {
         log.info("Generate month breakdown request received. userId={}, year={}, month={}", userId, year, month);
 

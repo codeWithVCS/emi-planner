@@ -3,6 +3,7 @@ package com.emiplanner.service.impl;
 import com.emiplanner.dto.auth.LoginRequest;
 import com.emiplanner.dto.auth.LoginResponse;
 import com.emiplanner.dto.auth.RegisterRequest;
+import com.emiplanner.config.CacheNames;
 import com.emiplanner.dto.user.UserResponse;
 import com.emiplanner.entity.User;
 import com.emiplanner.exception.AuthenticationException;
@@ -14,6 +15,7 @@ import com.emiplanner.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -85,6 +87,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Cacheable(cacheNames = CacheNames.CURRENT_USER, key = "#userId.toString()")
     public UserResponse getCurrentUser(UUID userId) {
         log.info("Fetching current user details for userId={}", userId);
 

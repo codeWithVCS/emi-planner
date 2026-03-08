@@ -4,6 +4,7 @@ import com.emiplanner.dto.loan.LoanCloseRequest;
 import com.emiplanner.dto.loan.LoanCreateRequest;
 import com.emiplanner.dto.loan.LoanResponse;
 import com.emiplanner.dto.loan.LoanUpdateRequest;
+import com.emiplanner.config.CacheNames;
 import com.emiplanner.entity.Loan;
 import com.emiplanner.entity.LoanStatus;
 import com.emiplanner.entity.User;
@@ -16,6 +17,9 @@ import com.emiplanner.repository.UserRepository;
 import com.emiplanner.service.LoanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +38,11 @@ public class LoanServiceImpl implements LoanService {
     private final UserRepository userRepository;
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CacheNames.CALENDAR_YEAR, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.CALENDAR_MONTH, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.USER_LOANS, allEntries = true)
+    })
     public LoanResponse createLoan(UUID userId, LoanCreateRequest request) {
         log.info(
                 "Create loan request received. userId={}, loanName={}, providerName={}, startDate={}, tenureMonths={}, emiAmount={}",
@@ -74,6 +83,12 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CacheNames.CALENDAR_YEAR, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.CALENDAR_MONTH, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.USER_LOANS, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.LOAN_BY_ID, key = "#userId.toString() + ':' + #loanId.toString()")
+    })
     public LoanResponse updateLoan(UUID loanId, UUID userId, LoanUpdateRequest request) {
         log.info("Update loan request received. loanId={}, userId={}", loanId, userId);
 
@@ -105,6 +120,12 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CacheNames.CALENDAR_YEAR, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.CALENDAR_MONTH, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.USER_LOANS, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.LOAN_BY_ID, key = "#userId.toString() + ':' + #loanId.toString()")
+    })
     public void deleteLoan(UUID loanId, UUID userId) {
         log.info("Delete loan request received. loanId={}, userId={}", loanId, userId);
 
@@ -124,6 +145,12 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CacheNames.CALENDAR_YEAR, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.CALENDAR_MONTH, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.USER_LOANS, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.LOAN_BY_ID, key = "#userId.toString() + ':' + #loanId.toString()")
+    })
     public LoanResponse closeLoan(UUID loanId, UUID userId, LoanCloseRequest request) {
         log.info("Close loan request received. loanId={}, userId={}, closedDate={}", loanId, userId, request.getClosedDate());
 
@@ -160,6 +187,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    @Cacheable(cacheNames = CacheNames.LOAN_BY_ID, key = "#userId.toString() + ':' + #loanId.toString()")
     public LoanResponse getLoanById(UUID loanId, UUID userId) {
         log.info("Get loan by id request received. loanId={}, userId={}", loanId, userId);
 
@@ -179,6 +207,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    @Cacheable(cacheNames = CacheNames.USER_LOANS, key = "#userId.toString() + ':' + #page + ':' + #size")
     public Page<LoanResponse> getUserLoans(UUID userId, int page, int size){
         log.info("Get user loans request received. userId={}, page={}, size={}", userId, page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));

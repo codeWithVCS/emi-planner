@@ -19,11 +19,28 @@ services:
     networks:
       - emi-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: emi-planner-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - emi-network
+
   app:
     build: .
     container_name: emi-planner-app
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/emi_planner
@@ -33,6 +50,8 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
       JWT_SECRET: your-secret-key-change-in-production
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     ports:
       - "8080:8080"
     networks:
@@ -41,6 +60,7 @@ services:
 
 volumes:
   db_data:
+  redis_data:
 
 networks:
   emi-network:
